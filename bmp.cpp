@@ -19,11 +19,9 @@ Bitmap::Bitmap(const char* filename) {
         std::cout << x;
         fread(&this->ih, sizeof(BITMAPINFOHEADER), 1, file);
 
-        int byte;
-        int count = 0;
-        for(int i=0;i<84;i++) byte = getc(file); //magic number 84 offset why?
+        char dummy[84];
+        fread(&dummy, sizeof(char), 84, file);  //magic number 84 offset why?
 
-        int image[3];
         int i = 0;
 
         int img_size = (52*52);
@@ -31,9 +29,7 @@ Bitmap::Bitmap(const char* filename) {
         int line_num = 0;
         while ( i < img_size )
         {
-        //while ( ! feof(file) ){    // foreach pixel
             fread(&pixel[i], sizeof(RGBQUAD), 1, file);
-
 
             printf("pixel %d: [%d,%d,%d]\n",i, pixel[i].rgbRed,pixel[i].rgbGreen,pixel[i].rgbBlue);
             i++;

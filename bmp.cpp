@@ -6,13 +6,15 @@
 
 #include "bmp.h"
 
-Bitmap::Bitmap(const char* filename) {
+Bitmap::Bitmap(const char* filename)
+{
     FILE* file;
     file = fopen(filename, "rb");
 
     std::cout << sizeof(BITMAPFILEHEADER) << std::endl;
 
-    if(file != NULL) { // file opened
+    if(file != NULL)
+    { // file opened
         BITMAPFILEHEADER h;
         size_t x = fread(&h, sizeof(BITMAPFILEHEADER), 1, file); //reading the FILEHEADER
 
@@ -24,7 +26,7 @@ Bitmap::Bitmap(const char* filename) {
 
         int i = 0;
 
-        int img_size = (52*52);
+        int img_size = ih.biHeight * ih.biWidth;//(52*52);
         RGBQUAD pixel[img_size];
         int line_num = 0;
         while ( i < img_size )
@@ -45,7 +47,8 @@ Bitmap::Bitmap(const char* filename) {
 
 Bitmap::~Bitmap() {}
 
-void Bitmap::print_pixels(){
+void Bitmap::print_pixels()
+{
 
     //std::cout << pixels << std::endl;
 }

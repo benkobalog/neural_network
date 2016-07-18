@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <random>
 #include <iostream>
+#include <cmath>
 #include <armadillo>
 
 using namespace arma;
@@ -13,14 +14,15 @@ typedef unsigned int uint;
 class Layer
 {
     mat W;
+    mat bias;
     uint nr_prev_layer_neurons;
     // Activation units
 
-    void ReLu();
-    double sigmoid();
-    double softMax();
+    inline void ReLu(int);
+    inline void sigmoid(int);
+    //inline void softMax();
     double rnd();
-    void init_weights();
+    void init_weights_and_bias();
     void set_activation();
 
 public:
@@ -45,7 +47,7 @@ class NeuralNetwork
 public:
     NeuralNetwork(const std::vector<uint> &);
     void forward_prop(const mat&);
-
+    void mini_batch();
 
     void back_prop();
 

@@ -1,7 +1,7 @@
-#include <cblas.h>
 #include <stdio.h>
 #include "bmp.h"
 #include "neuralnetwork.h"
+
 #include <armadillo>
 
 using namespace arma;
@@ -16,7 +16,7 @@ int main()
     NeuralNetwork nn2(fc_topology);
 
 
-    mat input = { -1, 2 };
+    mat input = { 1, 1 };
     nn2.forward_prop(input);
 
 

@@ -1,25 +1,23 @@
 #include <cblas.h>
 #include <stdio.h>
 #include "bmp.h"
+#include "neuralnetwork.h"
+#include <armadillo>
+
+using namespace arma;
 
 int main()
 {
-    int i=0;
-    double A[6] = {1.0,2.0,1.0,-3.0,4.0,-1.0};
-    double B[6] = {1.0,2.0,1.0,-3.0,4.0,-1.0};
-    double C[9] = {.5,.5,.5,.5,.5,.5,.5,.5,.5};
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,3,3,2,1,A, 3, B, 3,2,C,3);
+    //Bitmap pic = Bitmap("/home/benko/project/datasets/train-52x52/1/1_0001.bmp");
 
-    /*for(i=0; i<9; i++)
-    printf("%lf ", C[i]);
-    printf("\n");*/
-
-    Bitmap pic = Bitmap("/home/benko/project/datasets/train-52x52/1/1_0001.bmp");
-
-    pic.print_pixels();
+    //pic.print_pixels();
+    //NeuralNetwork nn1(3,4,3);
+    std::vector<uint> fc_topology {2,3,2};
+    NeuralNetwork nn2(fc_topology);
 
 
-
+    mat input = { -1, 2 };
+    nn2.forward_prop(input);
 
 
   return 1;

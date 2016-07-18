@@ -14,7 +14,7 @@ NeuralNetwork::NeuralNetwork(const std::vector<uint> &neurons) : num_of_neurons(
 }
 
 
-void NeuralNetwork::forward_prop(const mat& input)
+void NeuralNetwork::feedforward(const mat& input)
 {
     mat output = input;
     // iterate through the layers
@@ -36,6 +36,7 @@ void NeuralNetwork::mini_batch()
 
     // feedforward
 
+
     // output error
 
     // backprop error
@@ -45,19 +46,26 @@ void NeuralNetwork::mini_batch()
 
 //=========== Layer =================
 
-void Layer::ReLu(int index)
+double Layer::ReLu(double input)
 {
-    if (0.0 > neurons(0,index))
+    if (0.0 > input)
     {
-        neurons(0, index) = 0.0;
+        input = 0.0;
     }
+    return input;
 }
 
-void Layer::sigmoid(int index)
+double Layer::sigmoid(double input)
 {
-    neurons(0, index) = 1.0 / (1.0 + std::exp(-neurons(0, index)));
+    //neurons(0, index) = 1.0 / (1.0 + std::exp(-neurons(0, index)));
+    return 1.0 / (1.0 + std::exp(-input));
 }
 
+double Layer::sigmoid_derivate(double input)
+{
+    double tmp = sigmoid(input);
+    return tmp * (1 - tmp);
+}
 
 Layer::Layer(uint nr_neurons, uint nr_prev_layer_neurons)
     : nr_prev_layer_neurons(nr_prev_layer_neurons),
@@ -72,11 +80,11 @@ void Layer::init_weights_and_bias()
     std::cout << "Initialising layer\n";
     arma_rng::set_seed_random();
     W.randu(nr_prev_layer_neurons, neurons.size());
-    W.print("w: ");
+    //W.print("w: ");
     if (nr_prev_layer_neurons > 0 )
     {
         bias.randu(1, neurons.size());
-        bias.print("bias: ");
+      //  bias.print("bias: ");
     }
 }
 
@@ -92,12 +100,12 @@ void Layer::print_neurons()
 void Layer::set_activation()
 {
     for (uint var = 0; var < neurons.n_cols; ++var) {
-        //ReLu(var);
-        sigmoid(var);
+        //neurons(0, var) = ReLu(neurons(0, var));
+        neurons(0, var) = sigmoid(neurons(0, var));
     }
 }
 
-mat Layer::forward_prop(const mat &input)
+mat Layer::feedforward(const mat &input)
 {
     // TODO this without copy contructor
     std::cout << "FeedForward\n";

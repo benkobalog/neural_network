@@ -16,11 +16,15 @@ class Layer
     mat W;
     mat bias;
     uint nr_prev_layer_neurons;
-    // Activation units
 
-    inline void ReLu(int);
-    inline void sigmoid(int);
+    // Activation units
+    inline double ReLu(double);
+    inline double sigmoid(double);
     //inline void softMax();
+
+    inline double sigmoid_derivate(double input);
+
+    //Activation
     double rnd();
     void init_weights_and_bias();
     void set_activation();

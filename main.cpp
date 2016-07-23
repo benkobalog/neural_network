@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "bmp.h"
-#include "neuralnetwork.h"
+
+#include "network.h"
+#include "training.h"
 
 #include <armadillo>
 
@@ -12,12 +14,16 @@ int main()
 
     //pic.print_pixels();
     //NeuralNetwork nn1(3,4,3);
-    std::vector<uint> fc_topology {2,3,2};
+   /* std::vector<uint> fc_topology {2,3,2};
     NeuralNetwork nn2(fc_topology);
 
 
     mat input = { 1, 1 };
-    nn2.forward_prop(input);
+    nn2.feedforward(input);
+*/
+    Training train1;
+    train1.train_neural_network();
+
 
 
   return 1;

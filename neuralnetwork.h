@@ -7,34 +7,41 @@
 #include <armadillo>
 
 using namespace arma;
+using namespace std;
 
 typedef unsigned int uint;
 
 
+
+struct Activations
+{
+    // Activation units
+    static inline double ReLu(double);
+    static inline double ReLu_derivative(double);
+    static inline double sigmoid(double);
+    static inline double sigmoid_derivative(double input);
+
+};
+
 class Layer
 {
-    mat W;
-    mat bias;
     uint nr_prev_layer_neurons;
 
-    // Activation units
-    inline double ReLu(double);
-    inline double sigmoid(double);
-    //inline void softMax();
-
-    inline double sigmoid_derivate(double input);
-
-    //Activation
     double rnd();
     void init_weights_and_bias();
     void set_activation();
+    double normal_dist_number(double, double);
+    void xavier_init(double, mat&);
 
 public:
+    mat bias;
+    mat W;
     mat neurons;
+    mat delta;
 
     Layer(const uint, const uint);
 
-    mat forward_prop(const mat&);
+    void feedforward(const mat&);
     void print_neurons();
 
 };
@@ -46,12 +53,17 @@ class NeuralNetwork
 
     // Variables
     std::vector<uint> num_of_neurons;
-    std::vector<Layer> network;
+    std::vector<Layer> layers;
+
+    mat grad_cost(mat);
+    mat activation_derivate(int i_layer);
 
 public:
+
     NeuralNetwork(const std::vector<uint> &);
-    void forward_prop(const mat&);
-    void mini_batch();
+    void feedforward(const mat&);
+    void mini_batch(mat, mat);
+    void update_weights(mat);
 
     void back_prop();
 

@@ -30,7 +30,14 @@ void Network::feedforward(const mat& input)
     layers[0].A = input;
     for (uint i = 1; i < layers.size(); ++i) {
         layers[i].Z = layers[i].W * layers[i-1].A + layers[i].bias;
-        Activations::set_activation(layers[i].Z, layers[i].A);
+        if (i == layers.size())
+        {
+            Activations::set_activation(layers[i].Z, layers[i].A, true);
+        }
+        else
+        {
+            Activations::set_activation(layers[i].Z, layers[i].A, false);
+        }
     }
 
     layers[layers.size() - 1].A.print("output: ");
@@ -51,14 +58,14 @@ void Network::stochastic_gradient_descent(const mat &x, const mat& y)
 
     // calc output error
     mat grad_cost = layers[i_output_layer].A - y;
-    layers[i_output_layer].delta = grad_cost % activation_derivate(layers[i_output_layer].Z);
+    layers[i_output_layer].delta = grad_cost % activation_derivate(layers[i_output_layer].Z, true);
 
     layers[i_output_layer].nabla_w = layers[i_output_layer].nabla_w + (layers[i_output_layer].delta * layers[i_output_layer-1].A.t());
     layers[i_output_layer].nabla_b = layers[i_output_layer].nabla_b + (layers[i_output_layer].delta);
 
     //back propagate error
     for (uint i = i_output_layer - 1; i > 0; --i) {
-        layers[i].delta = (layers[i + 1].W.t() * layers[i + 1].delta) % activation_derivate(layers[i].Z);
+        layers[i].delta = (layers[i + 1].W.t() * layers[i + 1].delta) % activation_derivate(layers[i].Z, false);
 
         layers[i].nabla_w = layers[i].nabla_w + (layers[i].delta * layers[i-1].A.t());
         //layers[i].nabla_b = layers[i].nabla_b + (layers[i].bias - layers[i].A);
@@ -70,11 +77,11 @@ void Network::stochastic_gradient_descent(const mat &x, const mat& y)
 
 }
 
-void Network::update_weights(const uint batch_size)
+void Network::update_weights(const uint batch_size, double & learning_rate)
 {
     //update weights
+    double lambda = .0001;
 
-    double learning_rate = 10;
     // layers[0] is just the input now
     for (uint i = 1; i < layers.size(); ++i)
     {
@@ -82,29 +89,57 @@ void Network::update_weights(const uint batch_size)
         layers[i].W     = layers[i].W    - learning_rate/batch_size * layers[i].nabla_w;
         layers[i].bias  = layers[i].bias - (double)(learning_rate/batch_size) * layers[i].nabla_b;
 
-        /*layers[i].nabla_w.print("nab W");
-        layers[i].nabla_b.print("nab B");
-        layers[i].W.print("W");
-        layers[i].bias.print("B");*/
+        // weight decay
+        layers[i].W    = layers[i].W    - learning_rate * lambda * layers[i].W;
+        //layers[i].bias = layers[i].bias - learning_rate * lambda * layers[i].bias;
 
         layers[i].nabla_w = zeros(layers[i].W.n_rows,    layers[i].W.n_cols);
         layers[i].nabla_b = zeros(layers[i].bias.n_rows, layers[i].bias.n_cols);
 
     }
 
+    if (learning_rate > 1 )
+    {
+        learning_rate *= .9991;
+    }
+    else if ( learning_rate > .1)
+    {
+        learning_rate *= .9999;
+    }
+
 }
 
-mat Network::activation_derivate(const mat& matrix)
+mat Network::activation_derivate(const mat& matrix, const bool is_sigmoid)
 {
     // Output layer
     mat ret = zeros(matrix.n_rows, 1);
 
     for (uint var = 0; var < matrix.n_rows; ++var)
     {
-        //ret(var, 0) = Activations::ReLu_derivative(layer.neurons[var]);
-        ret(var, 0) = Activations::sigmoid_derivative(matrix(var,0));
+        if (is_sigmoid)
+        {
+            ret(var, 0) = Activations::sigmoid_derivative(matrix(var,0));
+        }
+        else
+        {
+            ret(var, 0) = Activations::ReLu_derivative(matrix(var,0));
+        }
     }
     return ret;
+}
+
+
+void Network::print_weights()
+{
+    for (uint i = 1; i < layers.size(); ++i)
+    {
+
+       // layers[i].nabla_w.print("nab W");
+       // layers[i].nabla_b.print("nab B");
+        layers[i].W.print("W");
+        layers[i].bias.print("B");
+
+    }
 }
 
 //===================================
@@ -174,12 +209,18 @@ void Layer::init_weights_and_bias(const Layer& prev_layer, const uint nr_neurons
 //====================================================
 
 
-void Activations::set_activation(const mat &Z , mat &A)
+void Activations::set_activation(const mat &Z , mat &A, const bool is_sigmoid)
 {
     for (uint var = 0; var < A.n_rows; ++var)
     {
-        //neurons(var, 0) = Activations::ReLu(neurons(var, 0));
-        A(var, 0) = Activations::sigmoid(Z(var, 0));
+        if (is_sigmoid)
+        {
+            A(var, 0) = Activations::sigmoid(Z(var, 0));
+        }
+        else
+        {
+            A(var, 0) = Activations::ReLu(Z(var, 0));
+        }
     }
 }
 

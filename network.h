@@ -21,7 +21,7 @@ namespace network
         static inline double sigmoid(double);
         static inline double sigmoid_derivative(double input);
 
-        static inline void set_activation(const mat&, mat&);
+        static inline void set_activation(const mat&, mat&, const bool);
 
     };
 
@@ -56,8 +56,9 @@ namespace network
     public:
         void feedforward(const mat& input);
         void stochastic_gradient_descent(const mat&, const mat&);
-        void update_weights(const uint);
-        mat activation_derivate(const mat&);
+        void update_weights(const uint, double&);
+        mat activation_derivate(const mat&, const bool is_sigmoid);
+        void print_weights();
         Network(const std::vector<uint>&);
     };
 

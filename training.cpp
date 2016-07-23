@@ -12,7 +12,7 @@ Training::Training()
 void Training::train_neural_network()
 {
     // for read training data
-    std::vector<uint> fc_topology {2,2,2};
+    std::vector<uint> fc_topology {2,3,2};
     //NeuralNetwork nn2(fc_topology);
 
     network::Network nn2(fc_topology);
@@ -51,7 +51,8 @@ void Training::train_neural_network()
     y.push_back({1});
     y.push_back({0});  */
 
-    for (int var = 0; var < 10000; ++var) {
+    double learning_rate = 1;
+    for (int var = 0; var < 20000; ++var) {
         const double lower_bound = 0;
         const double upper_bound = 4;
         std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
@@ -71,13 +72,16 @@ void Training::train_neural_network()
 
         std::cout << std::endl;
 
-        uint batch_size = 10;
+        uint batch_size = 8;
         if (var % batch_size == 0)
         {
-            nn2.update_weights(batch_size);
+            nn2.update_weights(batch_size, learning_rate);
+            cout << "learning rate===================== " << learning_rate << endl;
         }
         cout << endl ;
     }
+
+    nn2.print_weights();
 
         // pass training data
         // call mini_batch

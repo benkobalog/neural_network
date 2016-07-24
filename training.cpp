@@ -89,23 +89,144 @@ void Training::MNIST_training()
     uchar** images = read_mnist_images("/home/benko/project/datasets/mnist/train-images.idx3-ubyte",nr_images, image_size);
     uchar*  labels = read_mnist_labels("/home/benko/project/datasets/mnist/train-labels.idx1-ubyte", nr_labels);
 
+    double** imgs = new double*[nr_images];
+    //convert images to 0-1 range from 0-255
     for(int i = 0; i < nr_images; i++) {
-        cout << (int)labels[i] << " " << endl;
-
+        imgs[i] = new double[image_size];
         for (int col = 0; col < 28; ++col) {
             for (int row = 0; row < 28; ++row) {
                 uint index = col * 28 + row;
-                cout << (int)images[i][index] << " ";
+                imgs[i][index] = (double)images[i][index] / 256;
             }
-            cout << endl;
         }
-        cout << "=======================================\n\n\n";
     }
 
 
-    // loop through data
 
-    // update weights
+    std::vector<uint> fc_topology {28*28, 200, 200, 10};
+    //NeuralNetwork nn2(fc_topology);
+
+    network::Network nn2(fc_topology);
+
+    // loop through data
+    // parameters
+    uint batch_size = 10;
+    double learning_rate = .1;
+    double lambda = .001;
+    mat x,y;
+
+    double training_acc = 0;
+
+    for(int i = 0; i < nr_images; i++)
+    {
+        cout << (int)labels[i] << " " << endl;
+        y = zeros<mat>(10,1);
+        x = zeros<mat>(28 * 28, 1);
+        y((int)labels[i], 0) = 1;
+
+
+
+        for (int col = 0; col < 28; ++col)
+        {
+            for (int row = 0; row < 28; ++row)
+            {
+                uint index = col * 28 + row;
+                x(index, 0) = imgs[i][index];
+            }
+        }
+
+        int train_pred = nn2.stochastic_gradient_descent(x, y);
+
+        if( train_pred == (int)labels[i] )
+        {
+            training_acc++;
+        }
+
+        if (i % batch_size == 0)
+        {
+            nn2.update_weights(batch_size, learning_rate, lambda);
+            cout << "learning rate===================== " << learning_rate << endl;
+        }
+        cout << endl ;
+
+    }
+
+    training_acc /= nr_images;
+    //nn2.print_weights();
+
+
+    // Test phase ==============================================
+    /*delete images;
+    delete imgs;
+    delete labels;*/
+    // TODO Delete images and labels, now memory leak
+
+    cout << "Testing................\n";
+
+    uchar** t_images = read_mnist_images("/home/benko/project/datasets/mnist/t10k-images.idx3-ubyte",nr_images, image_size);
+    uchar* test_labels = read_mnist_labels("/home/benko/project/datasets/mnist/t10k-labels.idx1-ubyte", nr_labels);
+
+    double** test_images = new double*[nr_images];
+    mat debug ;
+    //convert images to 0-1 range from 0-255
+    for(int i = 0; i < nr_images; i++)
+    {
+        test_images[i] = new double[image_size];
+        for (int col = 0; col < 28; ++col)
+        {
+            for (int row = 0; row < 28; ++row)
+            {
+                uint index = col * 28 + row;
+                test_images[i][index] = (double)t_images[i][index] / 256;
+            }
+        }
+    }
+
+    // load test images
+    double accuracy = 0;
+    int true_positive = 0;
+
+    for(int i = 0; i < nr_images; i++)
+    {
+        //cout << (int)labels[i] << " " << endl;
+        y = zeros<mat>(10,1);
+        x = zeros<mat>(28 * 28, 1);
+        debug = zeros<mat>(28, 28);
+        y((int)test_labels[i], 0) = 1;
+
+        for (int col = 0; col < 28; ++col)
+        {
+            for (int row = 0; row < 28; ++row)
+            {
+                uint index = col * 28 + row;
+                x(index, 0) = test_images[i][index];
+                debug(col, row) = test_images[i][index];
+            }
+        }
+
+
+        int prediction = nn2.predict(x, y);
+
+        cout << "prediction: " << prediction << " target: " << (int)test_labels[i] << endl;
+        //debug.print("debug");
+
+        if( prediction == (int)test_labels[i] )
+        {
+            true_positive++;
+        }
+
+        cout << endl ;
+
+    }
+
+
+    accuracy = (double)(true_positive) / (double)nr_labels;
+    cout << "Test accuracy     = "<< accuracy << " : "<< true_positive << "/" << nr_labels<< endl;
+    cout << "Training accuracy = " << training_acc<< endl;
+
+
+
+
 }
 
 

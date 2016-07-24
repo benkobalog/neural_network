@@ -37,7 +37,6 @@ Network::Network(const std::vector<uint> &nr_neurons)
 
 void Network::feedforward(const mat& input)
 {
-    cout << "feedforward\n";
     layers[0].A = input;
     for (uint i = 1; i < layers.size(); ++i) {
         layers[i].Z = layers[i].W * layers[i-1].A + layers[i].bias;
@@ -51,10 +50,10 @@ void Network::feedforward(const mat& input)
         }
     }
 
-    layers[layers.size() - 1].A.print("output: ");
+    //layers[layers.size() - 1].A.print("output: ");
 }
 
-void Network::stochastic_gradient_descent(const mat &x, const mat& y)
+int Network::stochastic_gradient_descent(const mat &x, const mat& y)
 {
     feedforward(x);
 
@@ -86,6 +85,19 @@ void Network::stochastic_gradient_descent(const mat &x, const mat& y)
     //layers[i_output_layer].W.print("W");
 
 
+    // Max search
+    double max = 0;
+    int max_index = -1;
+    for (uint i = 0; i < layers[layers.size() - 1].A.n_rows; ++i)
+    {
+        if ( max < layers[layers.size() - 1].A(i, 0))
+        {
+            max = layers[layers.size() - 1].A(i, 0);
+            max_index = i;
+        }
+    }
+
+    return max_index;
 }
 
 void Network::update_weights(const uint batch_size, double & learning_rate, double & lambda)
@@ -109,7 +121,7 @@ void Network::update_weights(const uint batch_size, double & learning_rate, doub
 
     }
 
-    if (learning_rate > 1 )
+  /*  if (learning_rate > 1 )
     {
         learning_rate *= .9991;
     }
@@ -117,7 +129,7 @@ void Network::update_weights(const uint batch_size, double & learning_rate, doub
     {
         learning_rate *= .9999;
     }
-
+*/
 }
 
 mat Network::activation_derivate(const mat& matrix, const bool is_sigmoid)
@@ -139,6 +151,25 @@ mat Network::activation_derivate(const mat& matrix, const bool is_sigmoid)
     return ret;
 }
 
+int Network::predict(const mat &x , const mat &y)
+{
+    feedforward(x);
+
+
+    // Max search
+    double max = 0;
+    int max_index = -1;
+    for (uint i = 0; i < layers[layers.size() - 1].A.n_rows; ++i)
+    {
+        if ( max < layers[layers.size() - 1].A(i, 0))
+        {
+            max = layers[layers.size() - 1].A(i, 0);
+            max_index = i;
+        }
+    }
+
+    return max_index;
+}
 
 void Network::print_weights()
 {
@@ -202,13 +233,13 @@ void Layer::init_weights_and_bias(const Layer& prev_layer, const uint nr_neurons
 
     W.zeros(nr_neurons, prev_layer.Z.n_rows);
     xavier_init(nr_neurons, W);
-    W.print("w: ");
+    //W.print("w: ");
     nabla_w = zeros(W.n_rows, W.n_cols);
     if (prev_layer.Z.n_rows > 0 )
     {
         bias.zeros(nr_neurons, 1);
         xavier_init(nr_neurons, bias);
-        bias.print("bias: ");
+      //  bias.print("bias: ");
 
         nabla_b = zeros(bias.n_rows, bias.n_cols);
     }

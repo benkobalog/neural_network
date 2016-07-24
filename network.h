@@ -55,7 +55,8 @@ namespace network
         std::vector<Layer> layers;
     public:
         void feedforward(const mat& input);
-        void stochastic_gradient_descent(const mat&, const mat&);
+        int stochastic_gradient_descent(const mat&, const mat&);
+        int predict(const mat&, const mat&);
         void update_weights(const uint, double&, double& );
         mat activation_derivate(const mat&, const bool is_sigmoid);
         void print_weights();

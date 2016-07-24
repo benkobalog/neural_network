@@ -56,7 +56,7 @@ namespace network
     public:
         void feedforward(const mat& input);
         void stochastic_gradient_descent(const mat&, const mat&);
-        void update_weights(const uint, double&);
+        void update_weights(const uint, double&, double& );
         mat activation_derivate(const mat&, const bool is_sigmoid);
         void print_weights();
         Network(const std::vector<uint>&);

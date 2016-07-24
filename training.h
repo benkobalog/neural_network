@@ -10,7 +10,7 @@ class Training
 public:
     Training();
 
-    void train_neural_network();
+    void XOR_training();
     void test_case1();
 };
 

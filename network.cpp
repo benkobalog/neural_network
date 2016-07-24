@@ -12,7 +12,7 @@ Network::Network(const std::vector<uint> &nr_neurons)
     for (uint i = 1; i < nr_neurons.size(); ++i) {
         layers.push_back(Layer(layers[i-1], nr_neurons[i]));
     }
-    // it works for XOR with these fuckers but it doesn't want to fucking learn this shit
+    // good weights for the xor problem
     /*layers[1].W(0,0) = 20; layers[1].W(0,1) = 20;
     layers[1].W(1,0) = -20; layers[1].W(1,1) = -20;
 
@@ -21,6 +21,17 @@ Network::Network(const std::vector<uint> &nr_neurons)
 
     layers[2].W(0,0) = 20; layers[2].W(0,1) = 20;
     layers[2].bias(0,0) = -30;*/
+
+   /* layers[1].W(0,0) = -1; layers[1].W(0,1) = 1;
+    layers[1].W(1,0) = 1; layers[1].W(1,1) = -1;
+
+    layers[1].bias(0,0) = -0;
+    layers[1].bias(1,0) = 0;
+
+    layers[2].W(0,0) = -1; layers[2].W(0,1) =  -1;
+    layers[2].W(1,0) = 1; layers[2].W(1,1) =  1;
+    layers[2].bias(0,0) = 1;
+    layers[2].bias(1,0) = 0;*/
 
 }
 
@@ -77,10 +88,10 @@ void Network::stochastic_gradient_descent(const mat &x, const mat& y)
 
 }
 
-void Network::update_weights(const uint batch_size, double & learning_rate)
+void Network::update_weights(const uint batch_size, double & learning_rate, double & lambda)
 {
     //update weights
-    double lambda = .0001;
+
 
     // layers[0] is just the input now
     for (uint i = 1; i < layers.size(); ++i)

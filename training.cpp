@@ -9,10 +9,10 @@ Training::Training()
 }
 
 
-void Training::train_neural_network()
+void Training::XOR_training()
 {
     // for read training data
-    std::vector<uint> fc_topology {2,3,2};
+    std::vector<uint> fc_topology {2,2,2};
     //NeuralNetwork nn2(fc_topology);
 
     network::Network nn2(fc_topology);
@@ -51,7 +51,8 @@ void Training::train_neural_network()
     y.push_back({1});
     y.push_back({0});  */
 
-    double learning_rate = 1;
+    double learning_rate = .1;
+    double lambda = .0001;
     for (int var = 0; var < 20000; ++var) {
         const double lower_bound = 0;
         const double upper_bound = 4;
@@ -75,7 +76,7 @@ void Training::train_neural_network()
         uint batch_size = 8;
         if (var % batch_size == 0)
         {
-            nn2.update_weights(batch_size, learning_rate);
+            nn2.update_weights(batch_size, learning_rate, lambda);
             cout << "learning rate===================== " << learning_rate << endl;
         }
         cout << endl ;

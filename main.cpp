@@ -22,7 +22,7 @@ int main()
     nn2.feedforward(input);
 */
     Training train1;
-    train1.train_neural_network();
+    train1.XOR_training();
 
 
 

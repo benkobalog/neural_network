@@ -13,12 +13,8 @@ Training::Training()
 
 void Training::XOR_training()
 {
-    // for read training data
     std::vector<uint> fc_topology {2,2,2};
-    //NeuralNetwork nn2(fc_topology);
-
     network::Network nn2(fc_topology);
-
 
     // XOR
     std::vector<mat> x;
@@ -65,7 +61,6 @@ void Training::XOR_training()
 
         double error = 0.0;
         nn2.stochastic_gradient_descent(x[rnd], y[rnd]);
-        //nn2.mini_batch(x[1], y[1]);;
 
         std::cout << std::endl;
 
@@ -101,7 +96,7 @@ void Training::MNIST_training()
         }
     }
 
-    std::vector<uint> fc_topology {28*28, 500, 10};
+    std::vector<uint> fc_topology {28*28, 10};
     network::Network nn2(fc_topology);
 
     // loop through data
@@ -118,7 +113,6 @@ void Training::MNIST_training()
     double sum_error = 0;
     for(int i = 0; i < nr_images; i++)
     {
-        //cout << (int)labels[i] << " " << endl;
         y = zeros(10,1);
         x = zeros(28 * 28, 1);
         y((int)labels[i], 0) = 1;
@@ -154,16 +148,7 @@ void Training::MNIST_training()
         }
         //cout << endl ;
     }
-
     training_acc /= nr_images;
-    //nn2.print_weights();
-
-
-    // Test phase ==============================================
-    /*delete images;
-    delete imgs;
-    delete labels;*/
-    // TODO Delete images and labels, now memory leak
 
     cout << "Testing................\n";
 

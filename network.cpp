@@ -5,7 +5,6 @@ using namespace network;
 
 Network::Network(const std::vector<uint> &nr_neurons)
 {
-
     // Input layer
     layers.push_back(Layer(nr_neurons[0]));
 
@@ -32,7 +31,6 @@ Network::Network(const std::vector<uint> &nr_neurons)
     layers[2].W(1,0) = 1; layers[2].W(1,1) =  1;
     layers[2].bias(0,0) = 1;
     layers[2].bias(1,0) = 0;*/
-
 }
 
 void Network::feedforward(const mat& input)
@@ -49,8 +47,6 @@ void Network::feedforward(const mat& input)
             Activations::set_activation(layers[i].Z, layers[i].A, false);
         }
     }
-
-    //layers[layers.size() - 1].A.print("output: ");
 }
 
 Training_results Network::stochastic_gradient_descent(const mat &x, const mat& y)
@@ -64,9 +60,8 @@ Training_results Network::stochastic_gradient_descent(const mat &x, const mat& y
     for (uint var = 0; var < error.n_rows; ++var) {
         er += error(var,0);
     }
-    //cout << "error: " << er << endl;
 
-    // calc output error
+    // calculate output error
     mat grad_cost = layers[i_output_layer].A - y;
     layers[i_output_layer].delta = grad_cost % activation_derivate(layers[i_output_layer].Z, true);
 
@@ -78,22 +73,11 @@ Training_results Network::stochastic_gradient_descent(const mat &x, const mat& y
         layers[i].delta = (layers[i + 1].W.t() * layers[i + 1].delta) % activation_derivate(layers[i].Z, false);
 
         layers[i].nabla_w = layers[i].nabla_w + (layers[i].delta * layers[i-1].A.t());
-        //layers[i].nabla_b = layers[i].nabla_b + (layers[i].bias - layers[i].A);
         layers[i].nabla_b = layers[i].nabla_b + (layers[i].delta);
     }
-    //layers[i_output_layer].W.print("W");
 
-    // Max search
-    double max = 0;
-    int max_index = -1;
-    for (uint i = 0; i < layers[layers.size() - 1].A.n_rows; ++i)
-    {
-        if ( max < layers[layers.size() - 1].A(i, 0))
-        {
-            max = layers[layers.size() - 1].A(i, 0);
-            max_index = i;
-        }
-    }
+    // Find the most probable output
+    int max_index = (int)(layers[layers.size() - 1].A.index_max());
 
     Training_results training = {max_index, er};
     return training;
@@ -109,21 +93,10 @@ void Network::update_weights(const uint batch_size, double & learning_rate, doub
 
         // weight decay
         layers[i].W    = layers[i].W    - layers[i].W * learning_rate * lambda;
-        //layers[i].bias = layers[i].bias - learning_rate * lambda * layers[i].bias;
 
         layers[i].nabla_w = zeros(layers[i].W.n_rows,    layers[i].W.n_cols);
         layers[i].nabla_b = zeros(layers[i].bias.n_rows, layers[i].bias.n_cols);
     }
-
-  /*  if (learning_rate > 1 )
-    {
-        learning_rate *= .9991;
-    }
-    else if ( learning_rate > .1)
-    {
-        learning_rate *= .9999;
-    }
-*/
 }
 
 mat Network::activation_derivate(const mat& matrix, const bool is_sigmoid)
@@ -149,27 +122,14 @@ int Network::predict(const mat &x , const mat &y)
 {
     feedforward(x);
 
-
     // Max search
-    double max = 0;
-    int max_index = -1;
-    for (uint i = 0; i < layers[layers.size() - 1].A.n_rows; ++i)
-    {
-        if ( max < layers[layers.size() - 1].A(i, 0))
-        {
-            max = layers[layers.size() - 1].A(i, 0);
-            max_index = i;
-        }
-    }
-
-    return max_index;
+    return (int)layers[layers.size() - 1].A.index_max();
 }
 
 void Network::print_weights()
 {
     for (uint i = 1; i < layers.size(); ++i)
     {
-
        // layers[i].nabla_w.print("nab W");
        // layers[i].nabla_b.print("nab B");
         layers[i].W.print("W");
@@ -182,8 +142,6 @@ void Network::print_weights()
 //=========== Layer =================
 //===================================
 
-
-
 Layer::Layer(const Layer& prev_layer, const uint nr_neurons)  : Z(zeros(nr_neurons, 1)), A(zeros(nr_neurons, 1))
 {
     init_weights_and_bias(prev_layer, nr_neurons);
@@ -193,7 +151,6 @@ Layer::Layer(const Layer& prev_layer, const uint nr_neurons)  : Z(zeros(nr_neuro
 Layer::Layer(const uint nr_neurons) : Z(zeros(nr_neurons, 1)), A(zeros(nr_neurons, 1))
 {
     // Input Layer
-
 }
 
 double Layer::normal_dist_number(double mean, double variance)
@@ -220,10 +177,8 @@ void Layer::xavier_init(double nr_neuron, mat& matrix)
 void Layer::init_weights_and_bias(const Layer& prev_layer, const uint nr_neurons)
 {
     std::cout << "Initialising layer\n";
-    //arma_rng::set_seed_random();
-    //uint nr_neurons = neurons.n_cols;
 
-    cout << "tocs: " << nr_neurons << " " << prev_layer.Z.n_rows << endl;
+    cout << "Dimensions: " << nr_neurons << " " << prev_layer.Z.n_rows << endl;
 
     W = zeros(nr_neurons, prev_layer.Z.n_rows);
     xavier_init(nr_neurons, W);
@@ -233,7 +188,7 @@ void Layer::init_weights_and_bias(const Layer& prev_layer, const uint nr_neurons
     {
         bias = zeros(nr_neurons, 1);
         xavier_init(nr_neurons, bias);
-      //  bias.print("bias: ");
+        //  bias.print("bias: ");
 
         nabla_b = zeros(bias.n_rows, bias.n_cols);
     }

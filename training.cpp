@@ -63,7 +63,7 @@ void Training::XOR_training()
         std::cout << " Inputs: " << x[rnd](0, 0) << " " << x[rnd](1, 0) << std::endl;
         std::cout << "Target: " << y[rnd](0, 0) << std::endl;
 
-
+        double error = 0.0;
         nn2.stochastic_gradient_descent(x[rnd], y[rnd]);
         //nn2.mini_batch(x[1], y[1]);;
 
@@ -101,29 +101,27 @@ void Training::MNIST_training()
         }
     }
 
-
-
-    std::vector<uint> fc_topology {28*28, 200, 200, 10};
-    //NeuralNetwork nn2(fc_topology);
-
+    std::vector<uint> fc_topology {28*28, 500, 10};
     network::Network nn2(fc_topology);
 
     // loop through data
     // parameters
     uint batch_size = 10;
-    double learning_rate = .1;
-    double lambda = .001;
+    double learning_rate = 1.5;
+    double lambda = 0.001;
+    double eta = 0.99;
     mat x,y;
 
     double training_acc = 0;
 
+    double last_error = 100;
+    double sum_error = 0;
     for(int i = 0; i < nr_images; i++)
     {
-        cout << (int)labels[i] << " " << endl;
-        y = zeros<mat>(10,1);
-        x = zeros<mat>(28 * 28, 1);
+        //cout << (int)labels[i] << " " << endl;
+        y = zeros(10,1);
+        x = zeros(28 * 28, 1);
         y((int)labels[i], 0) = 1;
-
 
 
         for (int col = 0; col < 28; ++col)
@@ -135,20 +133,26 @@ void Training::MNIST_training()
             }
         }
 
-        int train_pred = nn2.stochastic_gradient_descent(x, y);
+        network::Training_results results = nn2.stochastic_gradient_descent(x, y);
+        sum_error += results.error;
 
-        if( train_pred == (int)labels[i] )
+        if( results.prediction == (int)labels[i] )
         {
             training_acc++;
         }
 
         if (i % batch_size == 0)
         {
+            if (last_error * eta > sum_error){
+                last_error = sum_error;
+                learning_rate *= .9;
+                //eta *= 1.01;
+            }
             nn2.update_weights(batch_size, learning_rate, lambda);
-            cout << "learning rate===================== " << learning_rate << endl;
+            cout << "learning rate===================== " << learning_rate << " sum " << sum_error << " last "<< last_error << endl;
+            sum_error = 0.0;
         }
-        cout << endl ;
-
+        //cout << endl ;
     }
 
     training_acc /= nr_images;
@@ -189,9 +193,9 @@ void Training::MNIST_training()
     for(int i = 0; i < nr_images; i++)
     {
         //cout << (int)labels[i] << " " << endl;
-        y = zeros<mat>(10,1);
-        x = zeros<mat>(28 * 28, 1);
-        debug = zeros<mat>(28, 28);
+        y = zeros(10,1);
+        x = zeros(28 * 28, 1);
+        debug = zeros(28, 28);
         y((int)test_labels[i], 0) = 1;
 
         for (int col = 0; col < 28; ++col)
@@ -204,7 +208,6 @@ void Training::MNIST_training()
             }
         }
 
-
         int prediction = nn2.predict(x, y);
 
         cout << "prediction: " << prediction << " target: " << (int)test_labels[i] << endl;
@@ -216,17 +219,11 @@ void Training::MNIST_training()
         }
 
         cout << endl ;
-
     }
-
 
     accuracy = (double)(true_positive) / (double)nr_labels;
     cout << "Test accuracy     = "<< accuracy << " : "<< true_positive << "/" << nr_labels<< endl;
     cout << "Training accuracy = " << training_acc<< endl;
-
-
-
-
 }
 
 

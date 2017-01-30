@@ -10,11 +10,8 @@ using namespace std;
 
 typedef unsigned char uchar;
 
-
 uchar* read_mnist_labels(string full_path, int& number_of_labels);
 uchar** read_mnist_images(string full_path, int& number_of_images, int& image_size);
-
-
 
     //int nr_images, image_size, nr_labels;
 
@@ -104,8 +101,5 @@ uchar** read_mnist_images(string full_path, int& number_of_images, int& image_si
         throw runtime_error("Cannot open file `" + full_path + "`!");
     }
 }
-
-
-
 
 #endif // MNIST_H

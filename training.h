@@ -1,13 +1,12 @@
 #ifndef TRAINING_H
 #define TRAINING_H
 
-#include "neuralnetwork.h"
 #include <random>
 
+//#include "matrix.h"
 
 class Training
 {
-
     inline int random_num(const double, const double);
 public:
     Training();

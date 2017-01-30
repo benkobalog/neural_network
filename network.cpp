@@ -53,18 +53,18 @@ void Network::feedforward(const mat& input)
     //layers[layers.size() - 1].A.print("output: ");
 }
 
-int Network::stochastic_gradient_descent(const mat &x, const mat& y)
+Training_results Network::stochastic_gradient_descent(const mat &x, const mat& y)
 {
     feedforward(x);
 
     int i_output_layer = layers.size() - 1;
 
-    mat error = 0.5 * (layers[i_output_layer].A - y) % (layers[i_output_layer].A - y);
+    mat error =  (layers[i_output_layer].A - y) * 0.5 % (layers[i_output_layer].A - y);
     double er = 0;
-    for (uint var = 0; var < error.size(); ++var) {
+    for (uint var = 0; var < error.n_rows; ++var) {
         er += error(var,0);
     }
-    cout << "error: " << er << endl;
+    //cout << "error: " << er << endl;
 
     // calc output error
     mat grad_cost = layers[i_output_layer].A - y;
@@ -81,9 +81,7 @@ int Network::stochastic_gradient_descent(const mat &x, const mat& y)
         //layers[i].nabla_b = layers[i].nabla_b + (layers[i].bias - layers[i].A);
         layers[i].nabla_b = layers[i].nabla_b + (layers[i].delta);
     }
-
     //layers[i_output_layer].W.print("W");
-
 
     // Max search
     double max = 0;
@@ -97,28 +95,24 @@ int Network::stochastic_gradient_descent(const mat &x, const mat& y)
         }
     }
 
-    return max_index;
+    Training_results training = {max_index, er};
+    return training;
 }
 
 void Network::update_weights(const uint batch_size, double & learning_rate, double & lambda)
 {
-    //update weights
-
-
     // layers[0] is just the input now
     for (uint i = 1; i < layers.size(); ++i)
     {
-
-        layers[i].W     = layers[i].W    - learning_rate/batch_size * layers[i].nabla_w;
-        layers[i].bias  = layers[i].bias - (double)(learning_rate/batch_size) * layers[i].nabla_b;
+        layers[i].W     = layers[i].W    - layers[i].nabla_w * (learning_rate/batch_size );
+        layers[i].bias  = layers[i].bias - layers[i].nabla_b * (double)(learning_rate/batch_size);
 
         // weight decay
-        layers[i].W    = layers[i].W    - learning_rate * lambda * layers[i].W;
+        layers[i].W    = layers[i].W    - layers[i].W * learning_rate * lambda;
         //layers[i].bias = layers[i].bias - learning_rate * lambda * layers[i].bias;
 
         layers[i].nabla_w = zeros(layers[i].W.n_rows,    layers[i].W.n_cols);
         layers[i].nabla_b = zeros(layers[i].bias.n_rows, layers[i].bias.n_cols);
-
     }
 
   /*  if (learning_rate > 1 )
@@ -190,13 +184,13 @@ void Network::print_weights()
 
 
 
-Layer::Layer(const Layer& prev_layer, const uint nr_neurons)  : Z(zeros<mat>(nr_neurons, 1)), A(zeros<mat>(nr_neurons, 1))
+Layer::Layer(const Layer& prev_layer, const uint nr_neurons)  : Z(zeros(nr_neurons, 1)), A(zeros(nr_neurons, 1))
 {
     init_weights_and_bias(prev_layer, nr_neurons);
 }
 
 
-Layer::Layer(const uint nr_neurons) : Z(zeros<mat>(nr_neurons, 1)), A(zeros<mat>(nr_neurons, 1))
+Layer::Layer(const uint nr_neurons) : Z(zeros(nr_neurons, 1)), A(zeros(nr_neurons, 1))
 {
     // Input Layer
 
@@ -214,7 +208,7 @@ void Layer::xavier_init(double nr_neuron, mat& matrix)
 {
     double mean = 0.0;
     // TODO this is possibly the output instead of the current neuron number
-    double variance = 1.0 / nr_neuron;
+    double variance = 1.0 / 10;
 
     for (uint col = 0; col < matrix.n_cols; ++col) {
         for (uint row = 0; row < matrix.n_rows; ++row) {
@@ -226,18 +220,18 @@ void Layer::xavier_init(double nr_neuron, mat& matrix)
 void Layer::init_weights_and_bias(const Layer& prev_layer, const uint nr_neurons)
 {
     std::cout << "Initialising layer\n";
-    arma_rng::set_seed_random();
+    //arma_rng::set_seed_random();
     //uint nr_neurons = neurons.n_cols;
 
     cout << "tocs: " << nr_neurons << " " << prev_layer.Z.n_rows << endl;
 
-    W.zeros(nr_neurons, prev_layer.Z.n_rows);
+    W = zeros(nr_neurons, prev_layer.Z.n_rows);
     xavier_init(nr_neurons, W);
     //W.print("w: ");
     nabla_w = zeros(W.n_rows, W.n_cols);
     if (prev_layer.Z.n_rows > 0 )
     {
-        bias.zeros(nr_neurons, 1);
+        bias = zeros(nr_neurons, 1);
         xavier_init(nr_neurons, bias);
       //  bias.print("bias: ");
 

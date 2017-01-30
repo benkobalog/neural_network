@@ -22,7 +22,7 @@ Bitmap::Bitmap(const char* filename)
         fread(&this->ih, sizeof(BITMAPINFOHEADER), 1, file);
 
         char dummy[84];
-        fread(&dummy, sizeof(char), 84, file);  //magic number 84 offset why?
+        fread(&dummy, sizeof(char), 84, file);  //magic number 84 offset? why?
 
         int i = 0;
 

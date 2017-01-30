@@ -5,14 +5,19 @@
 #include <random>
 #include <iostream>
 #include <cmath>
+#define nolib ;
+#ifdef lib
+#include "matrix.h"
+
+#else
 #include <armadillo>
 
 using namespace arma;
+#endif
 using namespace std;
 
 namespace network
 {
-
     struct Activations
     {
         // Activation units
@@ -22,7 +27,6 @@ namespace network
         static inline double sigmoid_derivative(double input);
 
         static inline void set_activation(const mat&, mat&, const bool);
-
     };
 
     class Layer
@@ -39,30 +43,28 @@ namespace network
         void xavier_init(double nr_neuron, mat& matrix);
         double normal_dist_number(double mean, double variance);
 
-
         Layer(const Layer&, const uint);
         Layer(const uint);
-
 
         friend class Network;
     };
 
-
-
+    struct Training_results {
+        int prediction;
+        double error;
+    };
 
     class Network
     {
         std::vector<Layer> layers;
     public:
         void feedforward(const mat& input);
-        int stochastic_gradient_descent(const mat&, const mat&);
+        Training_results stochastic_gradient_descent(const mat&, const mat&);
         int predict(const mat&, const mat&);
         void update_weights(const uint, double&, double& );
         mat activation_derivate(const mat&, const bool is_sigmoid);
         void print_weights();
         Network(const std::vector<uint>&);
     };
-
-
 }
 #endif // NETWORK_H

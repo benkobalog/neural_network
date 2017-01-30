@@ -76,14 +76,8 @@ void Training::XOR_training()
     nn2.print_weights();
 }
 
-void Training::MNIST_training()
+double ** Training::read_training_image(int nr_images, int image_size, uchar** images)
 {
-    // Read dataset
-    int nr_images, image_size, nr_labels;
-
-    uchar** images = read_mnist_images("/home/benko/project/datasets/mnist/train-images.idx3-ubyte",nr_images, image_size);
-    uchar*  labels = read_mnist_labels("/home/benko/project/datasets/mnist/train-labels.idx1-ubyte", nr_labels);
-
     double** imgs = new double*[nr_images];
     //convert images to 0-1 range from 0-255
     for(int i = 0; i < nr_images; i++) {
@@ -95,6 +89,40 @@ void Training::MNIST_training()
             }
         }
     }
+
+    return imgs;
+}
+
+double ** Training::read_test_images(int image_size, int nr_images, uchar** t_images)
+{
+    double** test_images = new double*[nr_images];
+
+    //convert images to 0-1 range from 0-255
+    for(int i = 0; i < nr_images; i++)
+    {
+        test_images[i] = new double[image_size];
+        for (int col = 0; col < 28; ++col)
+        {
+            for (int row = 0; row < 28; ++row)
+            {
+                uint index = col * 28 + row;
+                test_images[i][index] = (double)t_images[i][index] / 256;
+            }
+        }
+    }
+
+    return test_images;
+}
+
+void Training::MNIST_training()
+{
+    // Read dataset
+    int nr_images, image_size, nr_labels;
+
+    uchar** images = read_mnist_images("/home/benko/project/datasets/mnist/train-images.idx3-ubyte",nr_images, image_size);
+    uchar*  labels = read_mnist_labels("/home/benko/project/datasets/mnist/train-labels.idx1-ubyte", nr_labels);
+
+    double** imgs = read_training_image(nr_images, image_size, images);
 
     std::vector<uint> fc_topology {28*28, 10};
     network::Network nn2(fc_topology);
@@ -155,22 +183,8 @@ void Training::MNIST_training()
     uchar** t_images = read_mnist_images("/home/benko/project/datasets/mnist/t10k-images.idx3-ubyte",nr_images, image_size);
     uchar* test_labels = read_mnist_labels("/home/benko/project/datasets/mnist/t10k-labels.idx1-ubyte", nr_labels);
 
-    double** test_images = new double*[nr_images];
+    double** test_images = read_test_images(image_size, nr_images, t_images);
     mat debug ;
-    //convert images to 0-1 range from 0-255
-    for(int i = 0; i < nr_images; i++)
-    {
-        test_images[i] = new double[image_size];
-        for (int col = 0; col < 28; ++col)
-        {
-            for (int row = 0; row < 28; ++row)
-            {
-                uint index = col * 28 + row;
-                test_images[i][index] = (double)t_images[i][index] / 256;
-            }
-        }
-    }
-
     // load test images
     double accuracy = 0;
     int true_positive = 0;

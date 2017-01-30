@@ -15,8 +15,8 @@ public:
     void XOR_training();
     void MNIST_training();
     void test_case1();
-    double ** read_training_image(int nr_images, int image_size, uchar** images);
-    double ** read_test_images(int image_size, int nr_images, uchar** t_images);
+    double ** convert_training_images(int nr_images, int image_size, uchar** images);
+    double ** convert_test_images(int image_size, int nr_images, uchar** t_images);
 };
 
 #endif // TRAINING_H

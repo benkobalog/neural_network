@@ -76,7 +76,7 @@ void Training::XOR_training()
     nn2.print_weights();
 }
 
-double ** Training::read_training_image(int nr_images, int image_size, uchar** images)
+double ** Training::convert_training_images(int nr_images, int image_size, uchar** images)
 {
     double** imgs = new double*[nr_images];
     //convert images to 0-1 range from 0-255
@@ -93,7 +93,7 @@ double ** Training::read_training_image(int nr_images, int image_size, uchar** i
     return imgs;
 }
 
-double ** Training::read_test_images(int image_size, int nr_images, uchar** t_images)
+double ** Training::convert_test_images(int image_size, int nr_images, uchar** t_images)
 {
     double** test_images = new double*[nr_images];
 
@@ -122,7 +122,7 @@ void Training::MNIST_training()
     uchar** images = read_mnist_images("/home/benko/project/datasets/mnist/train-images.idx3-ubyte",nr_images, image_size);
     uchar*  labels = read_mnist_labels("/home/benko/project/datasets/mnist/train-labels.idx1-ubyte", nr_labels);
 
-    double** imgs = read_training_image(nr_images, image_size, images);
+    double** imgs = convert_training_images(nr_images, image_size, images);
 
     std::vector<uint> fc_topology {28*28, 10};
     network::Network nn2(fc_topology);
@@ -183,7 +183,7 @@ void Training::MNIST_training()
     uchar** t_images = read_mnist_images("/home/benko/project/datasets/mnist/t10k-images.idx3-ubyte",nr_images, image_size);
     uchar* test_labels = read_mnist_labels("/home/benko/project/datasets/mnist/t10k-labels.idx1-ubyte", nr_labels);
 
-    double** test_images = read_test_images(image_size, nr_images, t_images);
+    double** test_images = convert_test_images(image_size, nr_images, t_images);
     mat debug ;
     // load test images
     double accuracy = 0;
